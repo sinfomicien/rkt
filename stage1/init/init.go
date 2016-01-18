@@ -158,7 +158,7 @@ func machinedRegister() bool {
 	return found == 2
 }
 
-func lookupPath(bin string, paths string) (string, error) {
+func lookupPath(bin string, paths string, noExBit bool, onlyPath bool) (string, error) {
 	pathsArr := filepath.SplitList(paths)
 	for _, path := range pathsArr {
 		binPath := filepath.Join(path, bin)
@@ -171,39 +171,46 @@ func lookupPath(bin string, paths string) (string, error) {
 			continue
 		}
 		// Check the executable bit, inspired by os.exec.LookPath()
-		if m := d.Mode(); !m.IsDir() && m&0111 != 0 {
-			return binAbsPath, nil
+		if m := d.Mode(); ( !m.IsDir() && m&0111 != 0 ) || noExBit {
+			if onlyPath {
+				return path, nil
+			}else {
+				return binAbsPath, nil
+			}
 		}
 	}
 	return "", fmt.Errorf("unable to find %q in %q", bin, paths)
 }
 
 func installAssets() error {
-	systemctlBin, err := lookupPath("systemctl", os.Getenv("PATH"))
+	systemctlBin, err := lookupPath("systemctl", os.Getenv("PATH"),false,false)
 	if err != nil {
 		return err
 	}
-	bashBin, err := lookupPath("bash", os.Getenv("PATH"))
+	bashBin, err := lookupPath("bash", os.Getenv("PATH"),false,false)
 	if err != nil {
 		return err
 	}
 	// More paths could be added in that list if some Linux distributions install it in a different path
 	// Note that we look in /usr/lib/... first because of the merge:
 	// http://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/
-	systemdShutdownBin, err := lookupPath("systemd-shutdown", "/usr/lib/systemd:/lib/systemd")
+	systemdShutdownBin, err := lookupPath("systemd-shutdown", "/usr/lib/systemd:/lib/systemd",false,false)
 	if err != nil {
 		return err
 	}
-	systemdBin, err := lookupPath("systemd", "/usr/lib/systemd:/lib/systemd")
+	systemdBin, err := lookupPath("systemd", "/usr/lib/systemd:/lib/systemd",false,false)
 	if err != nil {
 		return err
 	}
-	systemdJournaldBin, err := lookupPath("systemd-journald", "/usr/lib/systemd:/lib/systemd")
+	systemdJournaldBin, err := lookupPath("systemd-journald", "/usr/lib/systemd:/lib/systemd",false,false)
 	if err != nil {
 		return err
 	}
 
-	systemdUnitsPath := "/lib/systemd/system"
+	systemdUnitsPath, err := lookupPath("systemd-journald.service", "/usr/lib/systemd/system:/lib/systemd/system",true,true)
+	if err != nil {
+		return err
+	}
 	assets := []string{
 		proj2aci.GetAssetString("/usr/lib/systemd/systemd", systemdBin),
 		proj2aci.GetAssetString("/usr/bin/systemctl", systemctlBin),
@@ -337,7 +344,7 @@ func getArgsEnv(p *stage1commontypes.Pod, flavor string, debug bool, n *networki
 		}
 
 	case "host":
-		hostNspawnBin, err := lookupPath("systemd-nspawn", os.Getenv("PATH"))
+		hostNspawnBin, err := lookupPath("systemd-nspawn", os.Getenv("PATH"),false,false)
 		if err != nil {
 			return nil, nil, err
 		}
