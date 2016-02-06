@@ -224,6 +224,9 @@ func installAssets() error {
 		// because it depends on systemd build flag -DSYSTEMD_SHUTDOWN_BINARY_PATH=
 		proj2aci.GetAssetString(systemdShutdownBin, systemdShutdownBin),
 	}
+	for i, asset := range assets {
+		fmt.Println("Asset [%s]",asset)
+	}
 
 	return proj2aci.PrepareAssets(assets, "./stage1/rootfs/", nil)
 }
