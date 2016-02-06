@@ -225,7 +225,7 @@ func installAssets() error {
 		proj2aci.GetAssetString(systemdShutdownBin, systemdShutdownBin),
 	}
 	for i, asset := range assets {
-		fmt.Println("Asset [%s]",asset)
+		fmt.Errorf("Asset [%d][%s]",i,asset)
 	}
 
 	return proj2aci.PrepareAssets(assets, "./stage1/rootfs/", nil)
