@@ -194,7 +194,7 @@ func copyRegularFile(src, dest string) error {
 
 func copySymlink(src, dest string) error {
 	fmt.Println("Symlinking %s to %s",src,dest)
-	if src == "libkmod.so.2" {
+	if src == "/lib64/libkmod.so.2" {
 		return nil
 	}
 	symTarget, err := os.Readlink(src)
