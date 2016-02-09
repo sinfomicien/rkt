@@ -193,6 +193,7 @@ func copyRegularFile(src, dest string) error {
 }
 
 func copySymlink(src, dest string) error {
+	fmt.Println("Symlinking %s to %s",src,dest)
 	symTarget, err := os.Readlink(src)
 	if err != nil {
 		return err
