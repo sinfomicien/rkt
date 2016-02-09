@@ -7,11 +7,11 @@ $(call generate-stamp-rule,$(UFH_STAMP),,$(S1_RF_ACIROOTFSDIR), \
 	ln -sf 'host' "$(S1_RF_ACIROOTFSDIR)/flavor" && \
 	mkdir -p "$(S1_RF_ACIROOTFSDIR)/usr/lib" && \
 	mkdir -p "$(S1_RF_ACIROOTFSDIR)/usr/lib64" && \
-	ln -sf usr/lib64 "$(S1_RF_ACIROOTFSDIR)/lib64" && \
-	ln -sf usr/lib "$(S1_RF_ACIROOTFSDIR)/lib")
+	mkdir -p "$(S1_RF_ACIROOTFSDIR)/lib64" && \
+	mkdir -p "$(S1_RF_ACIROOTFSDIR)/lib")
 
 
-CLEAN_SYMLINKS += $(S1_RF_ACIROOTFSDIR)/flavor $(S1_RF_ACIROOTFSDIR)/lib64
+CLEAN_SYMLINKS += $(S1_RF_ACIROOTFSDIR)/flavor $(S1_RF_ACIROOTFSDIR)/lib64 $(S1_RF_ACIROOTFSDIR)/lib
 
 CLEAN_DIRS += $(S1_RF_ACIROOTFSDIR)/usr/lib
 
